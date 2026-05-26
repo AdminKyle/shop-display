@@ -17,8 +17,10 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
 
   <style>
-    html, body, #root { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-    body { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+    html, body, #root { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000; }
+    html { height: -webkit-fill-available; }
+    body { min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+    #root { min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available; }
     input { user-select: text; -webkit-user-select: text; }
   </style>
 </head>
@@ -181,7 +183,7 @@ function App() {
   }, [theme.bg]);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden"
+    <div className="h-full w-full flex items-center justify-center relative overflow-hidden"
          style={{ background: theme.bg, color: theme.fg, paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
       {view === "loading" && <div className="text-sm opacity-50" style={{ fontFamily: "Inter, sans-serif" }}>Loading…</div>}
       {view === "onboard" && <Onboarding step={step} setStep={setStep} editConfig={editConfig} setEditConfig={setEditConfig} finish={finishOnboarding} />}
