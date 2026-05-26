@@ -163,6 +163,10 @@ function App() {
 
   const theme = THEMES[config.theme] || THEMES.ink;
 
+  useEffect(() => {
+    document.body.style.background = theme.bg;
+  }, [theme.bg]);
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden"
          style={{ background: theme.bg, color: theme.fg, paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
