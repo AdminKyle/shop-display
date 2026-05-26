@@ -1,16 +1,12 @@
-// api/followers.js
-//
-// Vercel serverless function — Instagram follower counter
-// --------------------------------------------------------
-// Scrapes a public IG profile, returns { count, handle, fetched_at }.
-// Edge-cached for 60s so Instagram is hit at most once per minute regardless
-// of how often the iPad polls.
-//
-// Usage from the shop display:
-//   https://YOUR-PROJECT.vercel.app/api/followers?handle=yourshop
-//
-// Or set IG_HANDLE env var in the Vercel project and just call:
-//   https://YOUR-PROJECT.vercel.app/api/followers
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.static(path.join(__dirname))); // Serve static files like index.html
 
 const USER_AGENT =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) " +
@@ -38,11 +34,9 @@ async function fetchFollowers(handle) {
   if (!res.ok) throw new Error(`Instagram returned HTTP ${res.status}`);
   const html = await res.text();
 
-  // 1. Embedded JSON: "edge_followed_by":{"count":12345}
   let m = html.match(/"edge_followed_by":\s*\{\s*"count":\s*(\d+)\s*\}/);
   if (m) return parseInt(m[1], 10);
 
-  // 2. og:description meta — "1,234 Followers, 567 Following..."
   m = html.match(/<meta[^>]+property="og:description"[^>]+content="([^"]+)"/);
   if (m) {
     const m2 = m[1].match(/([\d,.]+[KMB]?)\s+Followers/i);
@@ -52,7 +46,6 @@ async function fetchFollowers(handle) {
     }
   }
 
-  // 3. name="description" fallback
   m = html.match(/<meta[^>]+name="description"[^>]+content="([^"]+)"/);
   if (m) {
     const m2 = m[1].match(/([\d,.]+[KMB]?)\s+Followers/i);
@@ -65,23 +58,10 @@ async function fetchFollowers(handle) {
   throw new Error("Could not find follower count in page");
 }
 
-export default async function handler(req, res) {
-  // CORS — let the iPad display fetch this from any domain
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  if (req.method === "OPTIONS") return res.status(204).end();
-
-  // Edge-cache: Vercel caches this response for 60s and serves stale up to 5min while refreshing
-  res.setHeader(
-    "Cache-Control",
-    "public, s-maxage=60, stale-while-revalidate=300"
-  );
-
-  const handle = (req.query?.handle || process.env.IG_HANDLE || "").trim();
+app.get('/api/followers', async (req, res) => {
+  const handle = (req.query.handle || process.env.IG_HANDLE || "").trim();
   if (!handle) {
-    return res
-      .status(400)
-      .json({ error: "Provide ?handle=yourshop or set IG_HANDLE env var" });
+    return res.status(400).json({ error: "Provide ?handle=yourshop or set IG_HANDLE env var" });
   }
 
   try {
@@ -98,4 +78,35 @@ export default async function handler(req, res) {
       count: 0,
     });
   }
-}
+});
+
+// Default fallback to index.html for other routes
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(PORT, () => {
+  const networkInterfaces = require('os').networkInterfaces();
+  const ips = [];
+  for (const name of Object.keys(networkInterfaces)) {
+    for (const net of networkInterfaces[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        ips.push(net.address);
+      }
+    }
+  }
+  
+  console.log(`\n======================================================`);
+  console.log(`✅ LOCAL SHOP SERVER RUNNING`);
+  console.log(`======================================================`);
+  console.log(`Open this address on your iPad's Safari Browser:`);
+  if (ips.length > 0) {
+    ips.forEach(ip => {
+      console.log(`👉 http://${ip}:${PORT}`);
+    });
+  } else {
+    console.log(`👉 http://localhost:${PORT}`);
+  }
+  console.log(`======================================================\n`);
+  console.log(`To stop the server, press CTRL+C`);
+});
