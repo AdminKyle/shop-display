@@ -165,6 +165,19 @@ function App() {
 
   useEffect(() => {
     document.body.style.background = theme.bg;
+    document.documentElement.style.background = theme.bg;
+    
+    // Extract the last color from the gradient (e.g. "#000") to use for the safe area theme-color
+    const match = theme.bg.match(/(#[a-fA-F0-9]{3,6})\s*100%\)/);
+    const color = match ? match[1] : "#000000";
+    
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (!metaTheme) {
+      metaTheme = document.createElement('meta');
+      metaTheme.name = "theme-color";
+      document.head.appendChild(metaTheme);
+    }
+    metaTheme.content = color;
   }, [theme.bg]);
 
   return (
