@@ -411,18 +411,31 @@ function Display({ config, theme, openSettings, openHelp }) {
           <div className="inline-block text-xl md:text-2xl tracking-tight mb-6" style={{ color: theme.accent, fontFamily: "'JetBrains Mono', monospace", fontWeight: 500 }}>@{config.handle}</div>
 
           {config.countEnabled && (
-            <div className="pt-6 mt-2" style={{ borderTop: `1px solid ${theme.fg}15` }}>
-              <div className="leading-none tabular-nums tracking-tight" style={{
-                fontFamily: theme.serif ? "Fraunces, serif" : "Inter, sans-serif",
-                fontWeight: theme.serif ? 400 : 700,
-                fontSize: "clamp(2.5rem, 6vw, 5rem)",
-                color: theme.fg,
-                fontVariationSettings: theme.serif ? "'opsz' 144" : undefined,
-              }}>{live.displayCount.toLocaleString()}</div>
-              <div className="mt-2 text-[10px] tracking-[0.4em] uppercase" style={{ color: theme.sub, fontFamily: "'JetBrains Mono', monospace" }}>
-                Followers
-                {live.lastSync && live.online && (
-                  <span className="ml-2 opacity-60">· synced {live.lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+            <div className="pt-8 mt-4" style={{ borderTop: `1px solid ${theme.fg}20` }}>
+              <div className="flex items-baseline gap-3 md:gap-4 justify-center md:justify-start">
+                <div className="leading-none tabular-nums tracking-tight" style={{
+                  fontFamily: theme.serif ? "Fraunces, serif" : "Inter, sans-serif",
+                  fontWeight: theme.serif ? 300 : 800,
+                  fontSize: "clamp(4rem, 12vw, 8rem)",
+                  color: theme.fg,
+                  fontVariationSettings: theme.serif ? "'opsz' 144" : undefined,
+                  textShadow: `0 0 40px ${theme.accent}30`,
+                }}>{live.displayCount.toLocaleString()}</div>
+                <div className="leading-tight tracking-[0.15em] uppercase" style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "clamp(0.9rem, 2vw, 1.4rem)",
+                  color: theme.accent,
+                  fontWeight: 500,
+                  opacity: 0.9,
+                }}>Followers</div>
+              </div>
+              {live.lastSync && live.online && (
+                <div className="mt-3 text-[10px] tracking-[0.3em] uppercase" style={{ color: theme.sub, fontFamily: "'JetBrains Mono', monospace" }}>
+                  Synced {live.lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              )}
+            </div>
+          )}
                 )}
               </div>
             </div>
